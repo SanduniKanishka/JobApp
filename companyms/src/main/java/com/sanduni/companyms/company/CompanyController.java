@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/companies")
 public class CompanyController {
 
     private ComapnyService comapnyService;
@@ -15,18 +16,18 @@ public class CompanyController {
         this.comapnyService = comapnyService;
     }
 
-    @GetMapping("/companies")
+    @GetMapping
     public ResponseEntity<List<Company>> findAll(){
         return new ResponseEntity<>(comapnyService.findAll(), HttpStatus.OK);
     }
 
-    @PostMapping("/companies")
+    @PostMapping
     public ResponseEntity<String> createCompany(@RequestBody Company company){
         comapnyService.createCompany(company);
         return new ResponseEntity<>("Company created successfully", HttpStatus.CREATED);
     }
 
-    @GetMapping("/companies/{companyId}")
+    @GetMapping("/{companyId}")
     public ResponseEntity<Company> getById(@PathVariable Long companyId){
         Company company = comapnyService.getById(companyId);
         if (company != null){
@@ -37,14 +38,14 @@ public class CompanyController {
 
     }
 
-    @PutMapping("/companies/{companyId}")
+    @PutMapping("/{companyId}")
     public ResponseEntity<String> updateCompany(@PathVariable Long companyId,
                                                 @RequestBody Company company){
         comapnyService.updateCompany(companyId, company);
         return new ResponseEntity<>("Company Update Successfully", HttpStatus.OK);
     }
 
-    @DeleteMapping("/companies/{companyId}")
+    @DeleteMapping("/{companyId}")
     public ResponseEntity<String> deleteCompany(@PathVariable Long companyId){
         boolean isDeleted = comapnyService.deleteById(companyId);
         if (isDeleted){
