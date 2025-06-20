@@ -1,5 +1,6 @@
 package com.sanduni.reviewms.review;
 
+import com.sanduni.reviewms.review.messaging.ReviewMessageProducer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,9 +12,11 @@ import java.util.List;
 public class ReviewController {
 
     private ReviewService reviewService;
+    private ReviewMessageProducer reviewMessageProducer;
 
-    public ReviewController(ReviewService reviewService){
+    public ReviewController(ReviewService reviewService, ReviewMessageProducer reviewMessageProducer){
         this.reviewService = reviewService;
+        this.reviewMessageProducer=reviewMessageProducer;
     }
 
     @GetMapping
@@ -27,6 +30,7 @@ public class ReviewController {
         boolean isReviewed = reviewService.createReview(company_id,review);
 
         if (isReviewed){
+            reviewMessageProducer.sendMessage(review);
             return new ResponseEntity<>("Created Successull", HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -60,5 +64,12 @@ public class ReviewController {
         }else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/averageRating")
+    public Double getAverageRating(@RequestParam Long companyId){
+        List<Review> reviewList = reviewService.getAllReviews(companyId);
+        return reviewList.stream().mapToDouble(Review::getRating).average()
+                .orElse(0.0);
     }
 }
